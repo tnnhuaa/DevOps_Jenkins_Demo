@@ -1,47 +1,39 @@
+// Create for me jenkins file to run unit test with Pyhton in file test_baitap1.py
+// including create envỉonment and run test
 pipeline {
     agent any
-    
+
     stages {
-        stage('Checkout') {
+        stage('Setup Python Environment') {
             steps {
-                echo 'Checking out code...'
-                checkout scm
-            }
-        }
-        
-        stage('Setup') {
-            steps {
-                echo 'Setting up Python environment...'
+                // Create a virtual environment
+                sh 'python3 -m venv venv'
+                
+                // Activate the virtual environment and install dependencies
                 sh '''
-                    python --version
-                    python -m pip install --upgrade pip
-                    python -m venv venv
                     . venv/bin/activate
+                    curl https://bootstrap.pypa.io/get-pip.py | python3
+                    pip install --upgrade pip
                     pip install -r requirements.txt || echo "No requirements.txt found, skipping..."
                 '''
             }
         }
-        
-        stage('Test') {
+
+        stage('Run Unit Tests') {
             steps {
-                echo 'Running unit tests...'
+                // Activate the virtual environment and run tests
                 sh '''
                     . venv/bin/activate
-                    python -m pytest test_baitap1.py -v --tb=short || python -m unittest test_baitap1 -v
+                    python3 -m unittest discover -s . -p "test_baitap1.py"
                 '''
             }
         }
     }
-    
+
     post {
         always {
-            echo 'Test stage completed'
-        }
-        success {
-            echo 'All tests passed successfully!'
-        }
-        failure {
-            echo 'Tests failed!'
+            // Clean up the virtual environment
+            sh 'rm -rf venv'
         }
     }
 }
