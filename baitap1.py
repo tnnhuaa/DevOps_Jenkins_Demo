@@ -2,7 +2,13 @@
 def calculate_sum_and_average(numbers):
     if not numbers:
         raise ValueError("Dãy số không được rỗng.")
-    total = sum(numbers)
+    total = 0
+    for num in numbers:
+        if not isinstance(num, int):
+            raise ValueError("Tất cả các phần tử phải là số nguyên.")
+        if num <= 0:
+            raise ValueError("Tất cả các số phải là số nguyên dương.")
+        total += num
     average = total / len(numbers)
     return total, average
 
